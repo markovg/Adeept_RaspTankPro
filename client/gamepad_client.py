@@ -352,19 +352,19 @@ if __name__ == '__main__':
                         hat_state = joy.get_hat(0)
                         if hat_state[0] == 0:
                                 # TS = turn stop
-                                call_TS()
+                                call_handstop()
                         elif hat_state[0] == -1:
-                                call_left()
+                                call_handdown()
                         elif hat_state[0] == 1:
-                                call_right()
+                                call_handup()
 
                         if hat_state[1] == 0:
                                 # DS = drive stop
-                                call_DS()
+                                call_armstop()
                         elif hat_state[1] == 1:
-                                call_forward()
+                                call_up()
                         elif hat_state[1] == -1:
-                                call_backward()
+                                call_down()
                                         
                         axis_state = [joy.get_axis(i) for i in range(joy.get_numaxes())]
                         axst = np.array(axis_state)
@@ -386,18 +386,24 @@ if __name__ == '__main__':
 
                         if axst[1]>0.5:
                                 # arm
-                                call_up()
+                                #call_up()
+                                call_backward()
                         elif axst[1]<-0.5:
-                                call_down()
+                                #call_down()
+                                call_forward()
                         else:
-                                call_armstop()
+                                #call_armstop()
+                                call_DS()
 
                         if axst[0]>0.5:
-                                call_handup()
+                                #call_handup()
+                                call_left()
                         elif axst[0]<-0.5:
-                                call_handdown()
+                                #call_handdown()
+                                call_right()
                         else:
-                                call_handstop()
+                                #call_handstop()
+                                call_TS()
 
                         if axst[2]>0.5:
                                 call_grab()
