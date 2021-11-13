@@ -79,25 +79,25 @@ class Servo_ctrl(threading.Thread):
         while self.__running.isSet():
             self.__flag.wait()      # 为True时立即返回, 为False时阻塞直到内部的标识位为True后返回
             if functionMode != 6:
-                if servo_command == 'lookleft':
+                if servo_command[3]<0:
                     servo.lookleft(servo_speed)
-                elif servo_command == 'lookright':
+                elif servo_command[3]>0:
                     servo.lookright(servo_speed)
-                elif servo_command == 'up':
+                elif servo_command[1]>0:
                     servo.up(servo_speed)
-                elif servo_command == 'down':
+                elif servo_command[1]<0:
                     servo.down(servo_speed)
-                elif servo_command == 'lookup':
+                elif servo_command[4]>0:
                     servo.lookup(servo_speed)
-                elif servo_command == 'lookdown':
+                elif servo_command[4]<0:
                     servo.lookdown(servo_speed)
-                elif servo_command == 'grab':
+                elif servo_command[5]>0:
                     servo.grab(servo_speed)
-                elif servo_command == 'loose':
+                elif servo_command[5]<0:
                     servo.loose(servo_speed)
-                elif servo_command == 'handup':
+                elif servo_command[0]>0:
                     servo.handUp(servo_speed)
-                elif servo_command == 'handdown':
+                elif servo_command[0]<0:
                     servo.handDown(servo_speed)
                 else:
                     pass
@@ -184,12 +184,13 @@ def  ap_thread():
 
 def run():
     global servo_move, speed_set, servo_command, functionMode, init_get
+    servo.clean_all()
     servo.servo_init()
     move.setup()
     findline.setup()
     direction_command = 'no'
     turn_command = 'no'
-    servo_command = 'no'
+    servo_command = [0,0,0,0,0,0]
     speed_set = 100
     rad = 0.5
 

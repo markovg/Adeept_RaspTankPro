@@ -23,22 +23,22 @@ pwm = Adafruit_PCA9685.PCA9685()
 pwm.set_pwm_freq(50)
 
 pwm0_init = 300
-pwm0_max  = 450
-pwm0_min  = 150
+pwm0_max  = 500
+pwm0_min  = 100
 pwm0_pos  = pwm0_init
 
 pwm1_init = 300
 pwm1_max  = 480
-pwm1_min  = 160
+pwm1_min  = 100
 pwm1_pos  = pwm1_init
 
 pwm2_init = 300
-pwm2_max  = 500
-pwm2_min  = 100
+pwm2_max  = 550
+pwm2_min  = 210
 pwm2_pos  = pwm2_init
 
-pwm3_init = 300
-pwm3_max  = 500
+pwm3_init = 340
+pwm3_max  = 340
 pwm3_min  = 100
 pwm3_pos  = pwm3_init
 
@@ -249,7 +249,7 @@ def get_direction():
 
 
 if __name__ == '__main__':
-        while 1:
+        while 0:
                 for i in range(0,100):
                         pwm.set_pwm(0,0,(300+i))
                         time.sleep(0.05)

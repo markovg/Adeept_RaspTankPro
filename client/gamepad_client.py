@@ -11,7 +11,7 @@ import sys
 import time
 import threading as thread
 import math
-
+import numpy as np
 
 import pygame
 
@@ -334,7 +334,22 @@ if __name__ == '__main__':
                         elif hat_state[1] == -1:
                                 call_backward()
                                         
-                                
+                        axis_state = [joy.get_axis(i) for i in joy.get_numaxes()]
+                        axst = np.abs(axis_state)
+                        # ignore center fluctuations
+                        axst[np.abs<0.1] = 0.0
+                        if axst[4]>0.5:
+                                call_lookup()
+                        elif axst[4]<-0.5:
+                                call_lookdown()
+                        if axst[3]>0.5:
+                                call_lookright()
+                        elif axst[3]<-0.5:
+                                call_lookleft()
+                        else:
+                                call_stoplookrl()
+
+
                         
         #TODO:
         # Map joy axis to movement commands
