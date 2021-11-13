@@ -26,7 +26,7 @@ advanced_OSD = 0
 
 def global_init():
         global DS_stu, TS_stu, color_bg, color_text, color_btn, color_line, color_can, color_oval, target_color
-        global speed, ip_stu, Switch_3, Switch_2, Switch_1, servo_stu, function_stu
+        global speed, ip_stu, Switch_3, Switch_2, Switch_1, servo_stu, servos_moving, function_stu
         DS_stu = 0
         TS_stu = 0
 
@@ -45,6 +45,7 @@ def global_init():
         Switch_1 = 0
 
         servo_stu = 0
+        servos_moving = [0,0,0,0,0,0]
         function_stu = 0
 
 
@@ -115,64 +116,105 @@ def connect():	   #Call this function to connect with the server
 
 def scale_send(event=None):
         time.sleep(0.03)
-        tcpClicSock.send(('wsB %s'%var_Speed.get()).encode())
+        tcpClicSock.send(('wsB %s;'%var_Speed.get()).encode())
 
 
 def call_up(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('up').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[1] != 1:
+                tcpClicSock.send(('up;').encode())
+                servos_moving[1] = 1
 
 def call_down(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('down').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[1] != -1:
+                tcpClicSock.send(('down;').encode())
+                servos_moving[1] = -1
+def call_armstop(event=None):
+        global servos_moving
+        if servos_moving[1] != 0:
+                tcpClicSock.send(('armstop;').encode())
+                servos_moving[1] = 0
+
+def call_handup(event=None):
+        global servos_moving
+        if servos_moving[0] != 1:
+                tcpClicSock.send(('handup;').encode())
+                servos_moving[0] = 1
+
+def call_handdown(event=None):
+        global servos_moving
+        if servos_moving[0] != -1:
+                tcpClicSock.send(('handdown;').encode())
+                servos_moving[0] = -1
+
+def call_handstop(event=None):
+        global servos_moving
+        if servos_moving[0] != 0:
+                tcpClicSock.send(('handstop;').encode())
+                servos_moving[0] = 0
 
 def call_lookleft(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('lookleft').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[3] != -1:
+                tcpClicSock.send(('lookleft;').encode())
+                servos_moving[3] = -1
 
 def call_lookright(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('lookright').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[3] != 1:
+                tcpClicSock.send(('lookright;').encode())
+                servos_moving[3] = 1
+
+def call_lookhstop(event=None):
+        global servos_moving
+        if servos_moving[3] != 0:
+                tcpClicSock.send(('lookhstop;').encode())
+                servos_moving[3] = 0
 
 def call_lookup(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('lookup').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[4] != 1:
+                tcpClicSock.send(('lookup;').encode())
+                servos_moving[4] = 1
 
 def call_lookdown(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('lookdown').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[4] != -1:
+                tcpClicSock.send(('lookdown;').encode())
+                servos_moving[4] = -1
+
+def call_lookvstop(event=None):
+        global servos_moving
+        if servos_moving[4] != 0:
+                tcpClicSock.send(('lookvstop;').encode())
+                servos_moving[4] = 0
 
 def call_grab(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('grab').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[5] != 1:
+                tcpClicSock.send(('grab;').encode())
+                servos_moving[5] = 1
 
 def call_loose(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('loose').encode())
-                servo_stu = 1
+        global servos_moving
+        if servos_moving[5] != -1:
+                tcpClicSock.send(('loose;').encode())
+                servos_moving[5] = -1
+
+def call_grabstop(event=None):
+        global servos_moving
+        if servos_moving[5] != 0:
+                tcpClicSock.send(('grabstop;').encode())
+                servos_moving[5] = 0
 
 def call_stop(event=None):
         global servo_stu
-        tcpClicSock.send(('stop').encode())
+        tcpClicSock.send(('stop;').encode())
         servo_stu = 0
 
 def call_home(event=None):
-        tcpClicSock.send(('home').encode())
+        tcpClicSock.send(('home;').encode())
         time.sleep(0.15)
 
 
@@ -180,75 +222,63 @@ def call_home(event=None):
 def call_left(event=None):
         global TS_stu
         if TS_stu != -1:
-                tcpClicSock.send(('left').encode())
+                tcpClicSock.send(('left;').encode())
                 TS_stu = -1
 
 def call_right(event=None):
         global TS_stu
         if TS_stu != 1:
-                tcpClicSock.send(('right').encode())
+                tcpClicSock.send(('right;').encode())
                 TS_stu = 1
 
 def call_forward(event=None):
         global DS_stu
         if DS_stu != 1:
-                tcpClicSock.send(('forward').encode())
+                tcpClicSock.send(('forward;').encode())
                 DS_stu = 1
 
 def call_backward(event=None):
         global DS_stu
         if DS_stu != -1:
-                tcpClicSock.send(('backward').encode())
+                tcpClicSock.send(('backward;').encode())
                 DS_stu = -1
 
 def call_DS(event=None):
         global DS_stu
-        tcpClicSock.send(('DS').encode())
+        tcpClicSock.send(('DS;').encode())
         DS_stu = 0
 
 def call_TS(event=None):
         global TS_stu
-        tcpClicSock.send(('TS').encode())
+        tcpClicSock.send(('TS;').encode())
         TS_stu = 0
 
 def servoStop(event=None):
         global servo_stu
         servo_stu = 0
-        tcpClicSock.send(('stop').encode())
-
-def handup(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('handup').encode())
-                servo_stu = 1
-
-def handdown(event=None):
-        global servo_stu
-        if servo_stu == 0:
-                tcpClicSock.send(('handdown').encode())
-                servo_stu = 1
+        tcpClicSock.send(('stop;').encode())
 
 
 
 def call_Switch_1(event=None):
         if Switch_1 == 0:
-                tcpClicSock.send(('Switch_1_on').encode())
+                tcpClicSock.send(('Switch_1_on;').encode())
         else:
-                tcpClicSock.send(('Switch_1_off').encode())
+                tcpClicSock.send(('Switch_1_off;').encode())
 
 
 def call_Switch_2(event=None):
         if Switch_2 == 0:
-                tcpClicSock.send(('Switch_2_on').encode())
+                tcpClicSock.send(('Switch_2_on;').encode())
         else:
-                tcpClicSock.send(('Switch_2_off').encode())
+                tcpClicSock.send(('Switch_2_off;').encode())
 
 
 def call_Switch_3(event=None):
         if Switch_3 == 0:
-                tcpClicSock.send(('Switch_3_on').encode())
+                tcpClicSock.send(('Switch_3_on;').encode())
         else:
-                tcpClicSock.send(('Switch_3_off').encode())
+                tcpClicSock.send(('Switch_3_off;').encode())
 
 # This is a simple class that will help us print to the screen.
 # It has nothing to do with the joysticks, just outputting the
@@ -321,6 +351,7 @@ if __name__ == '__main__':
                 elif event.type in [pygame.JOYAXISMOTION, pygame.JOYHATMOTION, pygame.USEREVENT]:
                         hat_state = joy.get_hat(0)
                         if hat_state[0] == 0:
+                                # TS = turn stop
                                 call_TS()
                         elif hat_state[0] == -1:
                                 call_left()
@@ -328,26 +359,53 @@ if __name__ == '__main__':
                                 call_right()
 
                         if hat_state[1] == 0:
+                                # DS = drive stop
                                 call_DS()
                         elif hat_state[1] == 1:
                                 call_forward()
                         elif hat_state[1] == -1:
                                 call_backward()
                                         
-                        axis_state = [joy.get_axis(i) for i in joy.get_numaxes()]
-                        axst = np.abs(axis_state)
+                        axis_state = [joy.get_axis(i) for i in range(joy.get_numaxes())]
+                        axst = np.array(axis_state)
                         # ignore center fluctuations
-                        axst[np.abs<0.1] = 0.0
+                        axst[np.abs(axst)<0.1] = 0.0
                         if axst[4]>0.5:
                                 call_lookup()
                         elif axst[4]<-0.5:
                                 call_lookdown()
+                        else:
+                                call_lookvstop()
+
                         if axst[3]>0.5:
                                 call_lookright()
                         elif axst[3]<-0.5:
                                 call_lookleft()
                         else:
-                                call_stoplookrl()
+                                call_lookhstop()
+
+                        if axst[1]>0.5:
+                                # arm
+                                call_up()
+                        elif axst[1]<-0.5:
+                                call_down()
+                        else:
+                                call_armstop()
+
+                        if axst[0]>0.5:
+                                call_handup()
+                        elif axst[0]<-0.5:
+                                call_handdown()
+                        else:
+                                call_handstop()
+
+                        if axst[2]>0.5:
+                                call_grab()
+                        elif axst[5]>0.5:
+                                call_loose()
+                        else:
+                                call_grabstop()
+                        
 
 
                         

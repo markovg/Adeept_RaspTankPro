@@ -83,24 +83,23 @@ class Servo_ctrl(threading.Thread):
                     servo.lookleft(servo_speed)
                 elif servo_command[3]>0:
                     servo.lookright(servo_speed)
-                elif servo_command[1]>0:
+                if servo_command[1]>0:
                     servo.up(servo_speed)
                 elif servo_command[1]<0:
                     servo.down(servo_speed)
-                elif servo_command[4]>0:
+                if servo_command[4]>0:
                     servo.lookup(servo_speed)
                 elif servo_command[4]<0:
                     servo.lookdown(servo_speed)
-                elif servo_command[5]>0:
+                if servo_command[5]>0:
                     servo.grab(servo_speed)
                 elif servo_command[5]<0:
                     servo.loose(servo_speed)
-                elif servo_command[0]>0:
+                if servo_command[0]>0:
                     servo.handUp(servo_speed)
                 elif servo_command[0]<0:
                     servo.handDown(servo_speed)
-                else:
-                    pass
+                
 
             if functionMode == 4:
                 if MPU_connection:
@@ -194,285 +193,306 @@ def run():
     speed_set = 100
     rad = 0.5
 
-    bark = AudioSegment.from_wav("quick_bark.wav")
+    bark = AudioSegment.from_wav("media/quick_bark.wav")
     
     servo_move = Servo_ctrl()
     servo_move.start()
     servo_move.pause()
     findline.setup()
     while True: 
-        data = ''
-        data = str(tcpCliSock.recv(BUFSIZ).decode())
-        if not data:
+        recvdata = ''
+        recvdata = str(tcpCliSock.recv(BUFSIZ).decode())
+        if not recvdata:
             continue
-        elif 'bark' == data:
-            play(bark)
-        
-        elif 'forward' == data:
-            direction_command = 'forward'
-            move.move(speed_set, direction_command, turn_command, rad)
-        
-        elif 'backward' == data:
-            direction_command = 'backward'
-            move.move(speed_set, direction_command, turn_command, rad)
+        cmds = recvdata.split(';')
+        for data in cmds:
+            if 'bark' == data:
+                play(bark)
+            
+            elif 'forward' == data:
+                direction_command = 'forward'
+                move.move(speed_set, direction_command, turn_command, rad)
+            
+            elif 'backward' == data:
+                direction_command = 'backward'
+                move.move(speed_set, direction_command, turn_command, rad)
 
-        elif 'DS' in data:
-            direction_command = 'no'
-            move.move(speed_set, direction_command, turn_command, rad)
+            elif 'DS' in data:
+                direction_command = 'no'
+                move.move(speed_set, direction_command, turn_command, rad)
 
-        elif 'left' == data:
-            turn_command = 'left'
-            move.move(speed_set, direction_command, turn_command, rad)
+            elif 'left' == data:
+                turn_command = 'left'
+                move.move(speed_set, direction_command, turn_command, rad)
 
-        elif 'right' == data:
-            turn_command = 'right'
-            move.move(speed_set, direction_command, turn_command, rad)
+            elif 'right' == data:
+                turn_command = 'right'
+                move.move(speed_set, direction_command, turn_command, rad)
 
-        elif 'TS' in data:
-            turn_command = 'no'
-            move.move(speed_set, direction_command, turn_command, rad)
-
-
-        elif 'Switch_1_on' in data:
-            switch.switch(1,1)
-            tcpCliSock.send(('Switch_1_on').encode())
-
-        elif 'Switch_1_off' in data:
-            switch.switch(1,0)
-            tcpCliSock.send(('Switch_1_off').encode())
-
-        elif 'Switch_2_on' in data:
-            switch.switch(2,1)
-            tcpCliSock.send(('Switch_2_on').encode())
-
-        elif 'Switch_2_off' in data:
-            switch.switch(2,0)
-            tcpCliSock.send(('Switch_2_off').encode())
-
-        elif 'Switch_3_on' in data:
-            switch.switch(3,1)
-            tcpCliSock.send(('Switch_3_on').encode())
-
-        elif 'Switch_3_off' in data:
-            switch.switch(3,0)
-            tcpCliSock.send(('Switch_3_off').encode())
+            elif 'TS' in data:
+                turn_command = 'no'
+                move.move(speed_set, direction_command, turn_command, rad)
 
 
-        elif 'function_1_on' in data:
-            if OLED_connection:
-                screen.screen_show(5,'SCANNING')
-            servo.ahead()
-            time.sleep(0.2)
-            tcpCliSock.send(('function_1_on').encode())
-            radar_send = servo.radar_scan()
-            tcpCliSock.sendall(radar_send.encode())
-            print(radar_send)
-            time.sleep(0.3)
-            tcpCliSock.send(('function_1_off').encode())
+            elif 'Switch_1_on' in data:
+                switch.switch(1,1)
+                tcpCliSock.send(('Switch_1_on').encode())
+
+            elif 'Switch_1_off' in data:
+                switch.switch(1,0)
+                tcpCliSock.send(('Switch_1_off').encode())
+
+            elif 'Switch_2_on' in data:
+                switch.switch(2,1)
+                tcpCliSock.send(('Switch_2_on').encode())
+
+            elif 'Switch_2_off' in data:
+                switch.switch(2,0)
+                tcpCliSock.send(('Switch_2_off').encode())
+
+            elif 'Switch_3_on' in data:
+                switch.switch(3,1)
+                tcpCliSock.send(('Switch_3_on').encode())
+
+            elif 'Switch_3_off' in data:
+                switch.switch(3,0)
+                tcpCliSock.send(('Switch_3_off').encode())
 
 
-        elif 'function_2_on' in data:
-            if OLED_connection:
-                screen.screen_show(5,'FindColor')
-            functionMode = 2
-            fpv.FindColor(1)
-            tcpCliSock.send(('function_2_on').encode())
-
-        elif 'function_3_on' in data:
-            if OLED_connection:
-                screen.screen_show(5,'MotionGet')
-            functionMode = 3
-            fpv.WatchDog(1)
-            tcpCliSock.send(('function_3_on').encode())
-
-        elif 'function_4_on' in data:
-            if MPU_connection:
+            elif 'function_1_on' in data:
                 if OLED_connection:
-                    screen.screen_show(5,'ADVANCED OSD')
-                functionMode = 4
-                servo_move.resume()
-                tcpCliSock.send(('function_4_on').encode())
-            else:
+                    screen.screen_show(5,'SCANNING')
+                servo.ahead()
+                time.sleep(0.2)
+                tcpCliSock.send(('function_1_on').encode())
+                radar_send = servo.radar_scan()
+                tcpCliSock.sendall(radar_send.encode())
+                print(radar_send)
+                time.sleep(0.3)
+                tcpCliSock.send(('function_1_off').encode())
+
+
+            elif 'function_2_on' in data:
+                if OLED_connection:
+                    screen.screen_show(5,'FindColor')
+                functionMode = 2
+                fpv.FindColor(1)
+                tcpCliSock.send(('function_2_on').encode())
+
+            elif 'function_3_on' in data:
+                if OLED_connection:
+                    screen.screen_show(5,'MotionGet')
+                functionMode = 3
+                fpv.WatchDog(1)
+                tcpCliSock.send(('function_3_on').encode())
+
+            elif 'function_4_on' in data:
+                if MPU_connection:
+                    if OLED_connection:
+                        screen.screen_show(5,'ADVANCED OSD')
+                    functionMode = 4
+                    servo_move.resume()
+                    tcpCliSock.send(('function_4_on').encode())
+                else:
+                    tcpCliSock.send(('function_4_off').encode())
+
+            elif 'function_5_on' in data:
+                if MPU_connection:
+                    if OLED_connection:
+                        screen.screen_show(5,'Automatic')
+                    functionMode = 5
+                    servo_move.resume()
+                    tcpCliSock.send(('function_5_on').encode())
+                else:
+                    tcpCliSock.send(('function_5_off').encode())
+
+            elif 'function_6_on' in data:
+                if MPU_connection:
+                    if OLED_connection:
+                        screen.screen_show(5,'SteadyCamera')
+                    functionMode = 6
+                    servo_move.resume()
+                    tcpCliSock.send(('function_6_on').encode())
+                else:
+                    tcpCliSock.send(('function_6_off').encode())
+
+
+            #elif 'function_1_off' in data:
+            #    tcpCliSock.send(('function_1_off').encode())
+
+            elif 'function_2_off' in data:
+                functionMode = 0
+                fpv.FindColor(0)
+                switch.switch(1,0)
+                switch.switch(2,0)
+                switch.switch(3,0)
+                tcpCliSock.send(('function_2_off').encode())
+
+            elif 'function_3_off' in data:
+                functionMode = 0
+                fpv.WatchDog(0)
+                tcpCliSock.send(('function_3_off').encode())
+
+            elif 'function_4_off' in data:
+                functionMode = 0
+                servo_move.pause()
+                move.motorStop()
                 tcpCliSock.send(('function_4_off').encode())
 
-        elif 'function_5_on' in data:
-            if MPU_connection:
-                if OLED_connection:
-                    screen.screen_show(5,'Automatic')
-                functionMode = 5
-                servo_move.resume()
-                tcpCliSock.send(('function_5_on').encode())
-            else:
+            elif 'function_5_off' in data:
+                functionMode = 0
+                servo_move.pause()
+                move.motorStop()
                 tcpCliSock.send(('function_5_off').encode())
 
-        elif 'function_6_on' in data:
-            if MPU_connection:
-                if OLED_connection:
-                    screen.screen_show(5,'SteadyCamera')
-                functionMode = 6
-                servo_move.resume()
-                tcpCliSock.send(('function_6_on').encode())
-            else:
+            elif 'function_6_off' in data:
+                functionMode = 0
+                servo_move.pause()
+                move.motorStop()
+                init_get = 0
                 tcpCliSock.send(('function_6_off').encode())
 
 
-        #elif 'function_1_off' in data:
-        #    tcpCliSock.send(('function_1_off').encode())
+            elif 'lookleft' == data:
+                servo_command[3] = -1
+                servo_move.resume()
 
-        elif 'function_2_off' in data:
-            functionMode = 0
-            fpv.FindColor(0)
-            switch.switch(1,0)
-            switch.switch(2,0)
-            switch.switch(3,0)
-            tcpCliSock.send(('function_2_off').encode())
+            elif 'lookright' == data:
+                servo_command[3] = 1
+                servo_move.resume()
+            elif 'lookhstop' == data:
+                servo_command[3] = 0
+                servo_move.resume()
 
-        elif 'function_3_off' in data:
-            functionMode = 0
-            fpv.WatchDog(0)
-            tcpCliSock.send(('function_3_off').encode())
+            elif 'up' == data:
+                servo_command[1] = 1
+                servo_move.resume()
+            
+            elif 'armstop' == data:
+                servo_command[1] = 0
+                servo_move.resume()
 
-        elif 'function_4_off' in data:
-            functionMode = 0
-            servo_move.pause()
-            move.motorStop()
-            tcpCliSock.send(('function_4_off').encode())
+            elif 'down' == data:
+                servo_command[1] = -1
+                servo_move.resume()
 
-        elif 'function_5_off' in data:
-            functionMode = 0
-            servo_move.pause()
-            move.motorStop()
-            tcpCliSock.send(('function_5_off').encode())
+            elif 'lookup' == data:
+                servo_command[4] = 1
+                servo_move.resume()
 
-        elif 'function_6_off' in data:
-            functionMode = 0
-            servo_move.pause()
-            move.motorStop()
-            init_get = 0
-            tcpCliSock.send(('function_6_off').encode())
+            elif 'lookdown' == data:
+                servo_command[4] = -1
+                servo_move.resume()
+            
+            elif 'lookvstop' == data:
+                servo_command[4] = 0
+                servo_move.resume()
+
+            elif 'grab' == data:
+                servo_command[5] = 1
+                servo_move.resume()
+
+            elif 'grabstop' == data:
+                servo_command[5] = 0
+                servo_move.resume()
+
+            elif 'loose' == data:
+                servo_command[5] = -1
+                servo_move.resume()
+
+            elif 'handup' == data:
+                servo_command[0] = 1
+                servo_move.resume()
+
+            elif 'handstop' == data:
+                servo_command[0] = 0
+                servo_move.resume()
+
+            elif 'handdown' == data:
+                servo_command[0] = -1
+                servo_move.resume()
+
+            elif 'stop' == data:
+                if not functionMode:
+                    servo_move.pause()
+                servo_command = 'no'
+                pass
 
 
-        elif 'lookleft' == data:
-            servo_command = 'lookleft'
-            servo_move.resume()
+            elif 'wsB' in data:
+                try:
+                    set_B=data.split()
+                    speed_set = int(set_B[1])
+                except:
+                    pass
 
-        elif 'lookright' == data:
-            servo_command = 'lookright'
-            servo_move.resume()
+            elif 'CVFL' in data:
+                if not FPV.FindLineMode:
+                    FPV.FindLineMode = 1
+                    tcpCliSock.send(('CVFL_on').encode())
+                else:
+                    move.motorStop()
+                    # FPV.cvFindLineOff()
+                    FPV.FindLineMode = 0
+                    tcpCliSock.send(('CVFL_off').encode())
 
-        elif 'up' == data:
-            servo_command = 'up'
-            servo_move.resume()
+            elif 'Render' in data:
+                if FPV.frameRender:
+                    FPV.frameRender = 0
+                else:
+                    FPV.frameRender = 1
 
-        elif 'down' == data:
-            servo_command = 'down'
-            servo_move.resume()
+            elif 'WBswitch' in data:
+                if FPV.lineColorSet == 255:
+                    FPV.lineColorSet = 0
+                else:
+                    FPV.lineColorSet = 255
 
-        elif 'lookup' == data:
-            servo_command = 'lookup'
-            servo_move.resume()
+            elif 'lip1' in data:
+                try:
+                    set_lip1=data.split()
+                    lip1_set = int(set_lip1[1])
+                    FPV.linePos_1 = lip1_set
+                except:
+                    pass
 
-        elif 'lookdown' == data:
-            servo_command = 'lookdown'
-            servo_move.resume()
+            elif 'lip2' in data:
+                try:
+                    set_lip2=data.split()
+                    lip2_set = int(set_lip2[1])
+                    FPV.linePos_2 = lip2_set
+                except:
+                    pass
 
-        elif 'grab' == data:
-            servo_command = 'grab'
-            servo_move.resume()
+            elif 'err' in data:
+                try:
+                    set_err=data.split()
+                    err_set = int(set_err[1])
+                    FPV.findLineError = err_set
+                except:
+                    pass
 
-        elif 'loose' == data:
-            servo_command = 'loose'
-            servo_move.resume()
+            elif 'FCSET' in data:#1
+                FCSET = data.split()
+                fpv.colorFindSet(int(FCSET[1]), int(FCSET[2]), int(FCSET[3]))
 
-        elif 'handup' == data:
-            servo_command = 'handup'
-            servo_move.resume()
+            elif 'setEC' in data:#Z
+                ECset = data.split()
+                try:
+                    fpv.setExpCom(int(ECset[1]))
+                except:
+                    pass
 
-        elif 'handdown' == data:
-            servo_command = 'handdown'
-            servo_move.resume()
+            elif 'defEC' in data:#Z
+                fpv.defaultExpCom()
 
-        elif 'stop' == data:
             if not functionMode:
-                servo_move.pause()
-            servo_command = 'no'
-            pass
-
-
-        elif 'wsB' in data:
-            try:
-                set_B=data.split()
-                speed_set = int(set_B[1])
-            except:
-                pass
-
-        elif 'CVFL' in data:
-            if not FPV.FindLineMode:
-                FPV.FindLineMode = 1
-                tcpCliSock.send(('CVFL_on').encode())
+                if OLED_connection:
+                    screen.screen_show(5,'Functions OFF')
             else:
-                move.motorStop()
-                # FPV.cvFindLineOff()
-                FPV.FindLineMode = 0
-                tcpCliSock.send(('CVFL_off').encode())
-
-        elif 'Render' in data:
-            if FPV.frameRender:
-                FPV.frameRender = 0
-            else:
-                FPV.frameRender = 1
-
-        elif 'WBswitch' in data:
-            if FPV.lineColorSet == 255:
-                FPV.lineColorSet = 0
-            else:
-                FPV.lineColorSet = 255
-
-        elif 'lip1' in data:
-            try:
-                set_lip1=data.split()
-                lip1_set = int(set_lip1[1])
-                FPV.linePos_1 = lip1_set
-            except:
                 pass
 
-        elif 'lip2' in data:
-            try:
-                set_lip2=data.split()
-                lip2_set = int(set_lip2[1])
-                FPV.linePos_2 = lip2_set
-            except:
-                pass
-
-        elif 'err' in data:
-            try:
-                set_err=data.split()
-                err_set = int(set_err[1])
-                FPV.findLineError = err_set
-            except:
-                pass
-
-        elif 'FCSET' in data:#1
-            FCSET = data.split()
-            fpv.colorFindSet(int(FCSET[1]), int(FCSET[2]), int(FCSET[3]))
-
-        elif 'setEC' in data:#Z
-            ECset = data.split()
-            try:
-                fpv.setExpCom(int(ECset[1]))
-            except:
-                pass
-
-        elif 'defEC' in data:#Z
-            fpv.defaultExpCom()
-
-        if not functionMode:
-            if OLED_connection:
-                screen.screen_show(5,'Functions OFF')
-        else:
-            pass
-
-        print(data)
+            print(data)
 
 
 def wifi_check():

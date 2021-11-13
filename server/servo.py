@@ -106,11 +106,11 @@ def radar_scan():
 def ctrl_range(raw, max_genout, min_genout):
         if raw > max_genout:
                 raw_output = max_genout
-                play_bell()
+                #play_bell()
                 
         elif raw < min_genout:
                 raw_output = min_genout
-                play_bell()
+                #play_bell()
         else:
                 raw_output = raw
         return int(raw_output)
@@ -138,17 +138,36 @@ def ctrl_range_arm(delta_hand, delta_arm, delta_look):
                         elif pwm1_pos<180:
                                 pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, 350)
                         
-                elif pwm1_pos<125:
+                elif pwm1_pos<120:
                         pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, 430)
-                elif pwm1_pos<160:
+                elif pwm1_pos<140:
                         pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, 380)
+                elif pwm1_pos<160:
+                        pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, 360)
                 elif pwm1_pos<180:
-                        pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, 350)
+                        pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, 310)
+                else: 
+                        pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, pwm2_min)
 
         if delta_arm!=0:
-                if pwm2_pos<380:
+                if pwm0_pos>350 or pwm0_pos<250:
+                        if pwm2_pos<350:
+                                pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, 180)
+                        elif pwm2_pos<380:
+                                pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, 160)
+                        elif pwm2_pos<430:
+                                pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, 125)
+                        else:
+                             pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, pwm1_min)   
+
+                elif pwm2_pos<310:
                         pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, 160)
-                elif 
+                elif pwm2_pos<360:
+                        pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, 140)
+                elif pwm2_pos<390:
+                        pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, 125)
+                else: 
+                        pwm1_pos = ctrl_range(pwm1_pos, pwm1_max, pwm1_min)
                         
                 
                         
@@ -229,7 +248,8 @@ def handUp(speed):
                 pwm2_pos -= speed
         else:
                 pwm2_pos += speed
-        pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, pwm2_min)
+        #pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, pwm2_min)
+        ctrl_range_arm(1,0,0)
         pwm.set_pwm(2, 0, pwm2_pos)
         #print(pwm1_pos)
 
@@ -240,7 +260,8 @@ def handDown(speed):
                 pwm2_pos += speed
         else:
                 pwm2_pos -= speed
-        pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, pwm2_min)
+        #pwm2_pos = ctrl_range(pwm2_pos, pwm2_max, pwm2_min)
+        ctrl_range_arm(1,0,0)
         pwm.set_pwm(2, 0, pwm2_pos)
         #print(pwm1_pos)
 
